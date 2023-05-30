@@ -1,17 +1,11 @@
 const express = require('express')
 const fetch = require('node-fetch');
 const Joi = require('joi')
-const snoowrap = require('snoowrap')
 require('dotenv').config()
 
 const app = express()
 app.use(express.json());
 
-const courses = [         
-{id: 1, name: 'c'},
-{id: 2, name: 'b'},
-{id: 3, name: 'a'}
-]
 
 app.get('/', (req, res) => {
   res.send('Hello World! port 3000 now with nodemon :)')
@@ -21,15 +15,16 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
   console.log(`Example app listening on port ${port}`)
 })
-// app.get('/api/courses',(req, res)=>{
-//     res.send([1,2,3])
-// })
+
 app.set('json spaces', 40);
-app.get('/api/courses/:subreddit_name',(req, res)=>{
+app.get('/api/subreddits/:subreddit_name',(req, res)=>{
     getSubredditContent(req.params.subreddit_name).then(result => {
-        // do some processing of result into finalData
-        if(result == -1){
-            res.send(`unfortunately coul not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
+        let jsonObj = {
+            subreddits: 
+                   {}
+        }
+        if(Object.keys(result.subreddits).length == Object.keys(jsonObj.subreddits).length){
+            res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
             res.status(404);
             console.log("bad input: ",req.params.subreddit_name )
         }
@@ -40,8 +35,8 @@ app.get('/api/courses/:subreddit_name',(req, res)=>{
     }).catch(err => {
         console.log(err);
         res.sendStatus(404);
-        res.send(`unfortunately coul not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
-        console.log("bad input: ",req.params.subreddit_name )
+        res.send(`bad request: ${req.params.subreddit_name}`)
+        console.log("bad bad bad: ",req.params.subreddit_name )
     });
 
 })
@@ -95,36 +90,6 @@ const config = {
     clientSecret: process.env.clientSecret,
   }
 
-// async function postLink(title, link, subreddit) {
-//     console.log("client_id: ", config.clientId)
-//     console.log("client_secret: ", config.clientSecret)
-//     console.log("username: ", config.username)
-//     console.log("password: ", config.password)
-//     const r = new snoowrap({
-//       userAgent: 'read subreddit',
-//       clientId: config.clientId,
-//       clientSecret: config.clientSecret,
-//       username: config.username,
-//       password: config.password,
-//     })
-//     const sub = await r.getSubreddit('python').then(res=>res.json()).then(data=>console.log(data));
-//     const topPosts = sub.getTop({time: 'week', limit: 3});
-//     console.log("topPosts: ", topPosts)
-//   }
-
-// (async() => {
-//     console.log('before start');
-  
-//     await postLink(
-//         'Post to Reddit with NodeJS and Typescript',
-//         "",
-//         'webdev'
-//     )
-    
-//     console.log('after start');
-//   })(); 
-
-//   const fetch = require('node-fetch');
 const headers = {'User-Agent': 'MyAPI/0.0.1'}
 const client_auth = Buffer.from(config.clientId + ':' + config.clientSecret).toString('base64');
 
@@ -196,17 +161,14 @@ async function getSubredditContent(subreddit_name){
       headers: header,
     });
 
-    if (!res.ok) {
+    if (res.status != 200) {
         console.log("errrorrrr!!!!!");
         console.log(res.status)
         console.log("jsonObj: ", jsonObj)
-        console.log("unfortunately coul not return matching subreddits to the given subreddit name")
-        return -1;
+        return jsonObj;
         
     }
         
-    if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
-  
     const data = await res.json();
     
     let i = 0
@@ -228,4 +190,3 @@ async function getSubredditContent(subreddit_name){
   
     return jsonObj;
   }
-// const data = getSubredditContent('shampoo')
