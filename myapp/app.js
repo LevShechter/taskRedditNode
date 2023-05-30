@@ -13,17 +13,38 @@ const courses = [
 {id: 3, name: 'a'}
 ]
 
-// app.get('/', (req, res) => {
-//   res.send('Hello World! port 3000 now with nodemon :)')
-// })
-// const port = process.env.PORT | 3000
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`)
-//   console.log(`Example app listening on port ${port}`)
-// })
+app.get('/', (req, res) => {
+  res.send('Hello World! port 3000 now with nodemon :)')
+})
+const port = process.env.PORT | 3000
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+  console.log(`Example app listening on port ${port}`)
+})
 // app.get('/api/courses',(req, res)=>{
 //     res.send([1,2,3])
 // })
+app.set('json spaces', 40);
+app.get('/api/courses/:subreddit_name',(req, res)=>{
+    getSubredditContent(req.params.subreddit_name).then(result => {
+        // do some processing of result into finalData
+        if(result == -1){
+            res.send(`unfortunately coul not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
+            res.status(404);
+            console.log("bad input: ",req.params.subreddit_name )
+        }
+        else{
+            res.json(result);
+        }
+        
+    }).catch(err => {
+        console.log(err);
+        res.sendStatus(404);
+        res.send(`unfortunately coul not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
+        console.log("bad input: ",req.params.subreddit_name )
+    });
+
+})
 // app.get('/api/courses/:id',(req, res)=>{
 //     const course = courses.find(c=>c.id == parseInt(req.params.id));
 //     if(!course) res.status(404).send('The course with the given ID not found')//404
@@ -161,11 +182,16 @@ function unixTotime(UNIX_timestamp){
     var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
     return time;
   }
-async function getSubredditContent(){
+async function getSubredditContent(subreddit_name){
+    let suffix = '/r/' + subreddit_name + '/top/'
  
     const header = await createHeadersGet()
+    let jsonObj = {
+        subreddits: 
+               {}
+    }
   
-    const res = await fetch(OAUTH_ENDPOINT + '/r/Python/top/', { 
+    const res = await fetch(OAUTH_ENDPOINT + suffix, { 
       method: "GET",
       headers: header,
     });
@@ -173,23 +199,22 @@ async function getSubredditContent(){
     if (!res.ok) {
         console.log("errrorrrr!!!!!");
         console.log(res.status)
+        console.log("jsonObj: ", jsonObj)
+        console.log("unfortunately coul not return matching subreddits to the given subreddit name")
+        return -1;
+        
     }
         
     if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
   
     const data = await res.json();
-    // console.log("data: ", data);
-    let jsonObj = {
-        subreddits: 
-               {}
-    }
+    
     let i = 0
     for (const [key, value] of Object.entries(data.data['children'])) {
         console.log("subeddit num: ", key)
         console.log("subreddit : ", value['data']['subreddit'])
         console.log("title: ", value['data']['title'])
         console.log("selftext : ", value['data']['selftext'])
-        // let time = new Date(value['data']['created']).toLocaleTimeString("en-US")
         let time = unixTotime(value['data']['created'])
         let curJsonObj = {"subeddit num ": key, "subreddit ": value['data']['subreddit'], "title ": value['data']['title'], "author_fullname":  value['data']['author_fullname'], "created":time, "url": value['data']['url'],  "selftext ": value['data']['selftext']}
         jsonObj['subreddits'][key] = curJsonObj
@@ -199,8 +224,8 @@ async function getSubredditContent(){
         }i ++;
 
       }
-      console.log("jsonObj: ", jsonObj)
+    console.log("jsonObj: ", jsonObj)
   
-    return data;
+    return jsonObj;
   }
-const data = getSubredditContent()
+// const data = getSubredditContent('shampoo')
