@@ -24,12 +24,15 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
                    {}
         }
         if(Object.keys(result.subreddits).length == Object.keys(jsonObj.subreddits).length){
+            res.status(404)
             res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
-            res.status(404);
             console.log("bad input: ",req.params.subreddit_name )
+            res.end()
         }
         else{
+            res.status(200)
             res.json(result);
+            res.end()
         }
         
     }).catch(err => {
@@ -37,9 +40,13 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
         res.sendStatus(404);
         res.send(`bad request: ${req.params.subreddit_name}`)
         console.log("bad bad bad: ",req.params.subreddit_name )
+        res.end(data)
     });
 
 })
+
+module.exports = app;
+// export default app;
 // app.get('/api/courses/:id',(req, res)=>{
 //     const course = courses.find(c=>c.id == parseInt(req.params.id));
 //     if(!course) res.status(404).send('The course with the given ID not found')//404
@@ -171,7 +178,6 @@ async function getSubredditContent(subreddit_name){
         
     const data = await res.json();
     
-    let i = 0
     for (const [key, value] of Object.entries(data.data['children'])) {
         console.log("subeddit num: ", key)
         console.log("subreddit : ", value['data']['subreddit'])
@@ -180,10 +186,7 @@ async function getSubredditContent(subreddit_name){
         let time = unixTotime(value['data']['created'])
         let curJsonObj = {"subeddit num ": key, "subreddit ": value['data']['subreddit'], "title ": value['data']['title'], "author_fullname":  value['data']['author_fullname'], "created":time, "url": value['data']['url'],  "selftext ": value['data']['selftext']}
         jsonObj['subreddits'][key] = curJsonObj
-        if(i == 0){
-            console.log(value)
-
-        }i ++;
+       
 
       }
     console.log("jsonObj: ", jsonObj)
