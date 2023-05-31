@@ -1,10 +1,24 @@
 const express = require('express')
 const fetch = require('node-fetch');
+const swaggerJsDoc = require('swagger-jsdoc')
+const swaggerUI = require('swagger-ui-express')
 const Joi = require('joi')
 require('dotenv').config()
 
 const app = express()
 app.use(express.json());
+
+const swaggerOptions = {
+    swaggerDefinition: {
+        info:{
+            title: 'Subreddits'
+        }
+    },
+    apis: ['app.js']
+}
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+console.log(swaggerDocs)
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 
 app.get('/', (req, res) => {
@@ -17,6 +31,20 @@ app.listen(port, () => {
 })
 
 app.set('json spaces', 40);
+
+/**
+ * @swagger 
+ * /api/subreddits/{subreddit}:
+ *  get:
+ *      description: get by name
+ *      parameters:
+ *        - name : subreddit
+ *          description: subreddit_name
+ *          in: path
+ *      responses:
+ *          200: 
+ *              description: sucesess
+ */
 app.get('/api/subreddits/:subreddit_name',(req, res)=>{
     getSubredditContent(req.params.subreddit_name).then(result => {
         let jsonObj = {
@@ -46,6 +74,8 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
 })
 
 module.exports = app;
+
+
 // export default app;
 // app.get('/api/courses/:id',(req, res)=>{
 //     const course = courses.find(c=>c.id == parseInt(req.params.id));
