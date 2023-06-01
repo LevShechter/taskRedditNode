@@ -3,13 +3,9 @@
   "version": "1.0.0",
   "description": "myapp dir",
   "main": "index.js",
-  "engines": {
-    "node": "12.x"
-  },
   "scripts": {
     "start": "node app.js",
-    "test": "mocha",
-    "vercel-build": "echo hello"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
