@@ -27,11 +27,11 @@ now we are ready to go get some subreddits!
 - to run the deployed app (that is deployed to vercel): 
 
 got to:
-https://task-reddit-node-mof8zqopk-levshechter.vercel.app/api/subreddits<your_preffered_subreddit>
+https://task-reddit-node.vercel.app/api/subreddits<your_preffered_subreddit>
 
 or:
 if you wish to see the given data of the subreddit in a swagger format, you can go to: 
-    https://task-reddit-node-mof8zqopk-levshechter.vercel.app/api-docs/
+    https://task-reddit-node.vercel.app/api-docs/
     press on the "get" button
     press on the "Try it out" button
     fill in the subreddit_name your preffered subreddit
