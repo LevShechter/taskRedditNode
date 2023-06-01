@@ -2,7 +2,6 @@ const express = require('express')
 const fetch = require('node-fetch');
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
-const Joi = require('joi')
 require('dotenv').config()
 
 const app = express()
@@ -22,11 +21,10 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 
 app.get('/', (req, res) => {
-  res.send('Hello World! port 3000 now with nodemon :)')
+  res.send('Hello World!')
 })
 const port = process.env.PORT | 3000
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
   console.log(`Example app listening on port ${port}`)
 })
 
@@ -36,7 +34,7 @@ app.set('json spaces', 40);
  * @swagger 
  * /api/subreddits/{subreddit}:
  *  get:
- *      description: get by name
+ *      description: get all top relevant subreddit by subreddit name
  *      parameters:
  *        - name : subreddit
  *          description: subreddit_name
@@ -54,7 +52,6 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
         if(Object.keys(result.subreddits).length == Object.keys(jsonObj.subreddits).length){
             res.status(404)
             res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
-            console.log("bad input: ",req.params.subreddit_name )
             res.end()
         }
         else{
@@ -66,8 +63,7 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
     }).catch(err => {
         console.log(err);
         res.sendStatus(404);
-        res.send(`bad request: ${req.params.subreddit_name}`)
-        console.log("bad bad bad: ",req.params.subreddit_name )
+        res.send(`bad request: ${req.params.subreddit_name}, error: ${err}`)
         res.end(data)
     });
 
@@ -136,11 +132,6 @@ async function getAccessToken(){
   body.append('grant_type', 'password');
   body.append('username', config.username);
   body.append('password', config.password);
-  console.log("username: ", config.username)
-  console.log("password: ", config.password)
-  console.log("clientId: ", config.clientId)
-  console.log("clientSecret: ", config.clientSecret)
-  console.log("client_auth: ", client_auth)
 
   const res = await fetch('https://www.reddit.com/api/v1/access_token', { 
     method: "POST",
@@ -199,9 +190,6 @@ async function getSubredditContent(subreddit_name){
     });
 
     if (res.status != 200) {
-        console.log("errrorrrr!!!!!");
-        console.log(res.status)
-        console.log("jsonObj: ", jsonObj)
         return jsonObj;
         
     }
@@ -214,7 +202,7 @@ async function getSubredditContent(subreddit_name){
         console.log("title: ", value['data']['title'])
         console.log("selftext : ", value['data']['selftext'])
         let time = unixTotime(value['data']['created'])
-        let curJsonObj = {"subeddit num ": key, "subreddit ": value['data']['subreddit'], "title ": value['data']['title'], "author_fullname":  value['data']['author_fullname'], "created":time, "url": value['data']['url'],  "selftext ": value['data']['selftext']}
+        let curJsonObj = {"subreddit num": key, "subreddit": value['data']['subreddit'], "title": value['data']['title'], "author_fullname":  value['data']['author_fullname'], "created":time, "url": value['data']['url'],  "selftext": value['data']['selftext']}
         jsonObj['subreddits'][key] = curJsonObj
        
 
