@@ -1,8 +1,21 @@
+//app.js file
+
 const express = require('express')
 const fetch = require('node-fetch');
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
+
 require('dotenv').config()
+
+const OAUTH_ENDPOINT = 'https://oauth.reddit.com'
+
+//required fields from .env file to get reddit access_token
+const config = {
+    username: process.env.redditUser,
+    password: process.env.password,
+    clientId: process.env.clientId,
+    clientSecret: process.env.clientSecret,
+  }
 
 const app = express()
 app.use(express.json());
@@ -16,19 +29,19 @@ const swaggerOptions = {
     apis: ['app.js']
 }
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-console.log(swaggerDocs)
+
+//setup swagger to have a better format of the subreddits result
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
-
+//rest api get
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
-const port = process.env.PORT | 3000
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+
 
 app.set('json spaces', 40);
+
+//rest api get with specific subreddit name
 
 /**
  * @swagger 
@@ -50,12 +63,14 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
                    {}
         }
         if(Object.keys(result.subreddits).length == Object.keys(jsonObj.subreddits).length){
+            //not illegal subreddit but got an empty result
             res.status(404)
             res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
             res.end()
         }
 
         else if(result.hasOwnProperty('status')){
+            // illegal subreddit or other error 
             res.status(result.status)
             res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
             res.end()
@@ -75,21 +90,13 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
 
 })
 
-module.exports = app;
 
-
-const config = {
-    username: process.env.redditUser,
-    password: process.env.password,
-    clientId: process.env.clientId,
-    clientSecret: process.env.clientSecret,
-  }
-
-const headers = {'User-Agent': 'MyAPI/0.0.1'}
-const client_auth = Buffer.from(config.clientId + ':' + config.clientSecret).toString('base64');
-
-
+/** method that performs a call to reddit's api for access_token
+ * @return {[string]}  reddit's access_token
+ */
 async function getAccessToken(){
+  const headers = {'User-Agent': 'MyAPI/0.0.1'}
+  const client_auth = Buffer.from(config.clientId + ':' + config.clientSecret).toString('base64');
   const body = new URLSearchParams();
   body.append('grant_type', 'password');
   body.append('username', config.username);
@@ -112,8 +119,10 @@ async function getAccessToken(){
   return access_token;
 }
 
-const OAUTH_ENDPOINT = 'https://oauth.reddit.com'
-const param_get = {'limit': 100}
+
+/** creates the header for the reddit API call
+ * @return {[json]}    header with bearer token
+ */
 const createHeadersGet = async () => {
     const token_id = await getAccessToken()
     const headers_get = {
@@ -123,7 +132,11 @@ const createHeadersGet = async () => {
     return headers_get
   }
 
-
+/**
+ * convert unix time (that is returned from reddit API) to data:hour:min:sec
+ * @param  {[any]} UNIX_timestamp unix time
+ * @return {[Date]}               converted date - date:hour:min:sec
+ */
 function unixTotime(UNIX_timestamp){
     var a = new Date(UNIX_timestamp * 1000);
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -136,6 +149,12 @@ function unixTotime(UNIX_timestamp){
     var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
     return time;
   }
+
+/**
+ * external API call to reddit's API to get the required subreddit
+ * @param  {[string]} subreddit_name subreddit name
+ * @return {[json]}                  the json response from reddit API
+ */  
 async function getSubredditContent(subreddit_name){
     let suffix = '/r/' + subreddit_name + '/top/'
  
@@ -160,17 +179,22 @@ async function getSubredditContent(subreddit_name){
     const data = await res.json();
     
     for (const [key, value] of Object.entries(data.data['children'])) {
-        console.log("subeddit num: ", key)
-        console.log("subreddit : ", value['data']['subreddit'])
-        console.log("title: ", value['data']['title'])
-        console.log("selftext : ", value['data']['selftext'])
         let time = unixTotime(value['data']['created'])
         let curJsonObj = {"subreddit num": key, "subreddit": value['data']['subreddit'], "title": value['data']['title'], "author_fullname":  value['data']['author_fullname'], "created":time, "url": value['data']['url'],  "selftext": value['data']['selftext']}
         jsonObj['subreddits'][key] = curJsonObj
        
 
       }
-    console.log("jsonObj: ", jsonObj)
   
     return jsonObj;
   }
+
+
+
+const port = process.env.PORT | 3000
+
+app.listen(port, () => {
+  console.log(`app listening on port ${port}`)
+})
+
+module.exports = app;

@@ -32,6 +32,8 @@ now we are ready to go get some subreddits!
 
 you can now run:
 node app.js
+you should see the log: "app listening on port <port>"
+(if the port is not 3000 -> consider the 3000 in the next description as this <port>)
 
 and curently you can:
 1. just go to your browser at http://localhost:3000/api/subreddits/<your_preffered_subreddit>
@@ -40,6 +42,7 @@ and curently you can:
     press on the "get" button
     press on the "Try it out" button
     fill in the subreddit_name your preffered subreddit
+    run "Execute"
 
 
 to run the tests:
