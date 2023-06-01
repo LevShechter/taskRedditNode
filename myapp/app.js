@@ -18,7 +18,7 @@ const swaggerOptions = {
             title: 'Subreddits'
         }
     },
-    apis: ['app.js']
+    apis: ['myapp/app.js', 'index.js']
 }
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
