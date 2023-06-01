@@ -1,12 +1,14 @@
 # taskRedditNode
 
 Hi :)
-this project enabls users to get the top articles in a given subreddit
-it uses rest api, node.js and express.js
+this project enabls users to get the top articles in a given subreddit.
+For each related articles in a certain subreddit, the given info is: title, creation date, and the specific url suffix.
+
+The project uses rest api, node.js and express.js
 
 
 you should install the required packages:
-node (in this project the required version is v12.14.0)
+node (in this project the required version is v18.16.0)
 express
 node-fetch
 dotenv
@@ -22,7 +24,25 @@ chai-http
 
 now we are ready to go get some subreddits!
 
-you can now run:
+- to run the deployed app (that is deployed to heroku): 
+
+got to:
+https://task-reddit-node-mof8zqopk-levshechter.vercel.app/api/subreddits<your_preffered_subreddit>
+
+or:
+if you wish to see the given data of the subreddit in a swagger format, you can go to: 
+    https://task-reddit-node-mof8zqopk-levshechter.vercel.app/api-docs/
+    press on the "get" button
+    press on the "Try it out" button
+    fill in the subreddit_name your preffered subreddit
+    run "Execute"
+
+
+
+- to run the app locally:
+
+you can run:
+
 cd myapp
 run: 
 node app.js
@@ -32,7 +52,7 @@ you should see the log: "app listening on port <port>"
 
 and curently you can:
 1. just go to your browser at http://localhost:3000/api/subreddits/<your_preffered_subreddit>
-2. or if you wish to see the given data of the subreddit in a better format, you can go to: 
+2. or if you wish to see the given data of the subreddit in a swagger format, you can go to: 
     http://localhost:3000/api-docs/
     press on the "get" button
     press on the "Try it out" button
