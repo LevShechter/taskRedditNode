@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node app.js",
-    "test": "mocha"
+    "test": "mocha",
+    "vercel-build": "echo hello"
   },
   "author": "",
   "license": "ISC",
