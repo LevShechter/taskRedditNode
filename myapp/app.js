@@ -54,6 +54,12 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
             res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
             res.end()
         }
+
+        else if(result.hasOwnProperty('status')){
+            res.status(result.status)
+            res.send(`unfortunately could not return matching subreddits to the given subreddit name: ${req.params.subreddit_name}`)
+            res.end()
+        }
         else{
             res.status(200)
             res.json(result);
@@ -71,50 +77,6 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
 
 module.exports = app;
 
-
-// export default app;
-// app.get('/api/courses/:id',(req, res)=>{
-//     const course = courses.find(c=>c.id == parseInt(req.params.id));
-//     if(!course) res.status(404).send('The course with the given ID not found')//404
-//     res.send(course)
-
-// })
-// app.post('/api/courses', (req, res)=>{
-//     const {error} = validateCourse(req.body);
-//     if(error){
-//         res.status(400).send(error.details[0].message);
-//         return;
-//     }
-//     const course = {
-//         id:courses.length +1, name: req.body.name
-//     };
-//     courses.push(course);
-//     res.send(course);
-// })
-
-// app.put('/api/courses:/id', (req, res)=>{
-//     const course = courses.find(c=>c.id == parseInt(req.params.id));
-//     if(!course) res.status(404).send('The course with the given ID not found')//404
-
-//     const {error} = validateCourse(req.body);
-//     if(error){
-//         res.status(400).send(error.details[0].message);
-//         return;
-//     }
-//     course.name = req.body.name;
-//     res.send(course);
-
-// });
-// //run with nodemon
-// //npm i -g nodemon
-
-// function validateCourse(course){
-//     const schema={
-//         name: Joi.string().min(3).required()
-//     };
-//     return Joi.valid(course, schema);
-
-// }
 
 const config = {
     username: process.env.redditUser,
@@ -146,7 +108,6 @@ async function getAccessToken(){
 
   const data = await res.json();
   const access_token = data.access_token;
-  console.log("access_token: ", access_token);
 
   return access_token;
 }
@@ -190,7 +151,9 @@ async function getSubredditContent(subreddit_name){
     });
 
     if (res.status != 200) {
-        return jsonObj;
+        console.log(`status: ${res.status} reason: ${await res.text()} for subreddit_name: ${subreddit_name}`);
+        jsonObj['status'] = res.status
+        return jsonObj
         
     }
         

@@ -1,3 +1,5 @@
+//tests for rest api get method
+
 const app = require('../app')
 let chai = require('chai')
 let chaiHttp = require('chai-http')
