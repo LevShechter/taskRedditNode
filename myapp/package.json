@@ -4,6 +4,7 @@
   "description": "myapp dir",
   "main": "index.js",
   "scripts": {
+    "start": "node app.js",
     "test": "mocha"
   },
   "author": "",
