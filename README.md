@@ -20,14 +20,6 @@ chai@4.2.0
 chai-http
 
 
-also, in the file .env you should add the required fields:
-
-redditUser = <your redditUserName>
-password = <your redditUserPassword>
-clientId = 'rocYVbiINfylPkabKWbPuQ'
-clientSecret = <Lev's redditAppSecret>
-
-
 now we are ready to go get some subreddits!
 
 you can now run:
