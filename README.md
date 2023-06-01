@@ -24,7 +24,7 @@ chai-http
 
 now we are ready to go get some subreddits!
 
-- to run the deployed app (that is deployed to heroku): 
+- to run the deployed app (that is deployed to vercel): 
 
 got to:
 https://task-reddit-node-mof8zqopk-levshechter.vercel.app/api/subreddits<your_preffered_subreddit>
