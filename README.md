@@ -23,7 +23,10 @@ chai-http
 now we are ready to go get some subreddits!
 
 you can now run:
+cd myapp
+run: 
 node app.js
+
 you should see the log: "app listening on port <port>"
 (if the port is not 3000 -> consider the 3000 in the next description as this <port>)
 
@@ -41,5 +44,5 @@ to run the tests:
 
 cd /myapp
 run:
-npm run test
+mocha
 
