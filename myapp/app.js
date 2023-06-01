@@ -5,17 +5,9 @@ const fetch = require('node-fetch');
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
 
-require('dotenv').config()
 
-const OAUTH_ENDPOINT = 'https://oauth.reddit.com'
+const REDDIT_API_ENDPOINT = 'http://www.reddit.com/r/'
 
-//required fields from .env file to get reddit access_token
-const config = {
-    username: process.env.redditUser,
-    password: process.env.password,
-    clientId: process.env.clientId,
-    clientSecret: process.env.clientSecret,
-  }
 
 const app = express()
 app.use(express.json());
@@ -91,43 +83,12 @@ app.get('/api/subreddits/:subreddit_name',(req, res)=>{
 })
 
 
-/** method that performs a call to reddit's api for access_token
- * @return {[string]}  reddit's access_token
- */
-async function getAccessToken(){
-  const headers = {'User-Agent': 'MyAPI/0.0.1'}
-  const client_auth = Buffer.from(config.clientId + ':' + config.clientSecret).toString('base64');
-  const body = new URLSearchParams();
-  body.append('grant_type', 'password');
-  body.append('username', config.username);
-  body.append('password', config.password);
-
-  const res = await fetch('https://www.reddit.com/api/v1/access_token', { 
-    method: "POST",
-    headers: {
-      'User-Agent': headers['User-Agent'],
-      Authorization: `Basic ${client_auth}`,
-    },
-    body
-  });
-
-  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
-
-  const data = await res.json();
-  const access_token = data.access_token;
-
-  return access_token;
-}
-
-
 /** creates the header for the reddit API call
  * @return {[json]}    header with bearer token
  */
 const createHeadersGet = async () => {
-    const token_id = await getAccessToken()
     const headers_get = {
         'User-Agent': 'read subreddit',
-        'Authorization': 'Bearer ' + token_id
     }
     return headers_get
   }
@@ -156,7 +117,7 @@ function unixTotime(UNIX_timestamp){
  * @return {[json]}                  the json response from reddit API
  */  
 async function getSubredditContent(subreddit_name){
-    let suffix = '/r/' + subreddit_name + '/top/'
+    let api = REDDIT_API_ENDPOINT + subreddit_name + '/top/.json'
  
     const header = await createHeadersGet()
     let jsonObj = {
@@ -164,7 +125,7 @@ async function getSubredditContent(subreddit_name){
                {}
     }
   
-    const res = await fetch(OAUTH_ENDPOINT + suffix, { 
+    const res = await fetch(api, { 
       method: "GET",
       headers: header,
     });
